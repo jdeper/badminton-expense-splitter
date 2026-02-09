@@ -24,16 +24,21 @@ export default function SummaryTable({
     }
 
     const playerShuttlecocks: Record<string, number> = {};
+    const playerShuttlecockCosts: Record<string, number> = {};
     players.forEach((player) => {
       playerShuttlecocks[player] = 0;
+      playerShuttlecockCosts[player] = 0;
     });
 
     games.forEach((game) => {
       const playersInGame = [game.player1, game.player2, game.player3, game.player4];
       const shuttlecocksPerPlayer = game.shuttlecocks / 4;
+      const priceMultiplier = game.reusedShuttlecocks ? 0.5 : 1;
+      const costPerPlayerThisGame = shuttlecocksPerPlayer * shuttlecockPrice * priceMultiplier;
       playersInGame.forEach((player) => {
         if (playerShuttlecocks[player] !== undefined) {
           playerShuttlecocks[player] += shuttlecocksPerPlayer;
+          playerShuttlecockCosts[player] += costPerPlayerThisGame;
         }
       });
     });
@@ -42,19 +47,23 @@ export default function SummaryTable({
       (sum, count) => sum + count,
       0
     );
-    const totalCost = totalShuttlecocks * shuttlecockPrice + courtFee;
+    const totalShuttlecockCost = Object.values(playerShuttlecockCosts).reduce(
+      (sum, cost) => sum + cost,
+      0
+    );
+    const totalCost = totalShuttlecockCost + courtFee;
     const costPerPlayer = totalCost / players.length;
 
     const playerCosts: Record<string, number> = {};
     players.forEach((player) => {
-      const shuttlecockCost = playerShuttlecocks[player] * shuttlecockPrice;
       const courtFeeShare = courtFee / players.length;
-      playerCosts[player] = shuttlecockCost + courtFeeShare;
+      playerCosts[player] = playerShuttlecockCosts[player] + courtFeeShare;
     });
 
     return {
       playerCosts,
       totalShuttlecocks,
+      totalShuttlecockCost,
       totalCost,
       costPerPlayer,
     };
@@ -92,7 +101,7 @@ export default function SummaryTable({
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-300">Shuttlecock Cost:</span>
             <span className="text-white font-semibold">
-              ${((calculations.totalShuttlecocks || 0) * shuttlecockPrice).toFixed(2)}
+              ${(calculations.totalShuttlecockCost ?? 0).toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between items-center text-sm">
@@ -119,6 +128,7 @@ export default function SummaryTable({
           <thead>
             <tr className="border-b border-gray-600">
               <th className="text-left py-3 px-4 text-gray-300 font-medium">Player</th>
+              <th className="text-right py-3 px-4 text-gray-300 font-medium">Games</th>
               <th className="text-right py-3 px-4 text-gray-300 font-medium">Shuttlecocks</th>
               <th className="text-right py-3 px-4 text-gray-300 font-medium">Cost</th>
             </tr>
@@ -141,6 +151,9 @@ export default function SummaryTable({
                 <tr key={player} className="border-b border-gray-700 hover:bg-badminton-dark/50">
                   <td className="py-3 px-4 text-white">{player}</td>
                   <td className="py-3 px-4 text-right text-gray-300">
+                    {playerGames.length}
+                  </td>
+                  <td className="py-3 px-4 text-right text-gray-300">
                     {shuttlecocksUsed.toFixed(1)}
                   </td>
                   <td className="py-3 px-4 text-right text-badminton-green font-semibold">
@@ -162,16 +175,28 @@ export default function SummaryTable({
                 key={index}
                 className="bg-badminton-dark p-3 rounded-lg flex justify-between items-center"
               >
-                <div className="text-sm text-gray-300">
-                  <span className="font-medium text-white">
-                    {game.player1}, {game.player2}
-                  </span>{' '}
-                  vs{' '}
-                  <span className="font-medium text-white">
-                    {game.player3}, {game.player4}
-                  </span>
-                  {' - '}
-                  <span className="text-badminton-green">{game.shuttlecocks}</span> shuttlecocks
+                <div className="text-sm text-gray-300 space-y-1">
+                  <div>
+                    <span className="font-medium text-white">
+                      {game.player1}, {game.player2}
+                    </span>{' '}
+                    vs{' '}
+                    <span className="font-medium text-white">
+                      {game.player3}, {game.player4}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+                    <span>
+                      <span className="text-gray-500">Shuttlecocks:</span>{' '}
+                      <span className="text-badminton-green font-medium">{game.shuttlecocks}</span>
+                    </span>
+                    <span>
+                      <span className="text-gray-500">Re-used:</span>{' '}
+                      <span className={game.reusedShuttlecocks ? 'text-amber-400' : 'text-gray-400'}>
+                        {game.reusedShuttlecocks ? 'Yes (½ cost)' : 'No'}
+                      </span>
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={() => onRemoveGame(index)}

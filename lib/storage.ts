@@ -4,6 +4,8 @@ export interface GameData {
   player3: string;
   player4: string;
   shuttlecocks: number;
+  /** When true, shuttlecock cost for this game is half (re-used shuttlecocks). */
+  reusedShuttlecocks?: boolean;
   date: string;
 }
 
