@@ -41,9 +41,10 @@ export default function SummaryTable({
       const shuttlecocksPerPlayer = game.shuttlecocks / 4;
       const priceMultiplier = game.reusedShuttlecocks ? 0.5 : 1;
       const costPerPlayerThisGame = shuttlecocksPerPlayer * shuttlecockPrice * priceMultiplier;
+      const countTowardTotal = !game.reusedShuttlecocks;
       playersInGame.forEach((player) => {
         if (playerShuttlecocks[player] !== undefined) {
-          playerShuttlecocks[player] += shuttlecocksPerPlayer;
+          if (countTowardTotal) playerShuttlecocks[player] += shuttlecocksPerPlayer;
           playerShuttlecockCosts[player] += costPerPlayerThisGame;
           playerCourtFee[player] += courtFeePerPlayerPerGame;
         }
@@ -79,13 +80,17 @@ export default function SummaryTable({
 
   const calculations = calculatePlayerCosts();
   const summaryRef = useRef<HTMLDivElement>(null);
+  const captureBtnRef = useRef<HTMLDivElement>(null);
   const [capturing, setCapturing] = useState(false);
   const [gameHistoryExpanded, setGameHistoryExpanded] = useState(true);
 
   const handleCapture = async () => {
     if (!summaryRef.current) return;
     setCapturing(true);
+    const btnEl = captureBtnRef.current;
+    if (btnEl) btnEl.style.visibility = 'hidden';
     try {
+      await new Promise((r) => requestAnimationFrame(r));
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(summaryRef.current, {
         backgroundColor: null,
@@ -96,6 +101,7 @@ export default function SummaryTable({
       link.href = canvas.toDataURL('image/png');
       link.click();
     } finally {
+      if (btnEl) btnEl.style.visibility = '';
       setCapturing(false);
     }
   };
@@ -122,15 +128,17 @@ export default function SummaryTable({
           <Calculator className="w-6 h-6" />
           Summary
         </h2>
-        <button
-          type="button"
-          onClick={handleCapture}
-          disabled={capturing}
-          className="flex items-center gap-2 px-4 py-2 bg-badminton-green text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-50"
-        >
-          <Camera className="w-4 h-4" />
-          {capturing ? 'Saving…' : 'Capture'}
-        </button>
+        <div ref={captureBtnRef}>
+          <button
+            type="button"
+            onClick={handleCapture}
+            disabled={capturing}
+            className="flex items-center gap-2 px-4 py-2 bg-badminton-green text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-50"
+          >
+            <Camera className="w-4 h-4" />
+            {capturing ? 'Saving…' : 'Capture'}
+          </button>
+        </div>
       </div>
 
       {games.length > 0 && (
@@ -165,33 +173,45 @@ export default function SummaryTable({
           <thead>
             <tr className="border-b border-gray-600">
               <th className="text-left py-3 px-4 text-gray-300 font-medium">Player</th>
-              <th className="text-right py-3 px-4 text-gray-300 font-medium">Games</th>
               <th className="text-right py-3 px-4 text-gray-300 font-medium">Cost</th>
+              <th className="text-right py-3 px-4 text-gray-300 font-medium">Games</th>
             </tr>
           </thead>
           <tbody>
-            {players.map((player) => {
-              const playerGames = games.filter(
-                (g) =>
-                  g.player1 === player ||
-                  g.player2 === player ||
-                  g.player3 === player ||
-                  g.player4 === player
-              );
-              const cost = calculations.playerCosts?.[player] || 0;
+            {[...players]
+              .sort((a, b) => {
+                const gamesA = games.filter(
+                  (g) =>
+                    g.player1 === a || g.player2 === a || g.player3 === a || g.player4 === a
+                ).length;
+                const gamesB = games.filter(
+                  (g) =>
+                    g.player1 === b || g.player2 === b || g.player3 === b || g.player4 === b
+                ).length;
+                return gamesB - gamesA;
+              })
+              .map((player) => {
+                const playerGames = games.filter(
+                  (g) =>
+                    g.player1 === player ||
+                    g.player2 === player ||
+                    g.player3 === player ||
+                    g.player4 === player
+                );
+                const cost = calculations.playerCosts?.[player] || 0;
 
-              return (
-                <tr key={player} className="border-b border-gray-700 hover:bg-badminton-dark/50">
-                  <td className="py-3 px-4 text-white">{player}</td>
-                  <td className="py-3 px-4 text-right text-gray-300">
-                    {playerGames.length}
-                  </td>
-                  <td className="py-3 px-4 text-right text-badminton-green font-semibold">
-                    ${cost.toFixed(2)}
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={player} className="border-b border-gray-700 hover:bg-badminton-dark/50">
+                    <td className="py-3 px-4 text-white">{player}</td>
+                    <td className="py-3 px-4 text-right text-badminton-green font-semibold">
+                      ${cost.toFixed(2)}
+                    </td>
+                    <td className="py-3 px-4 text-right text-gray-300">
+                      {playerGames.length}
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

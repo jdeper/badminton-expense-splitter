@@ -1,6 +1,6 @@
 'use client';
 
-import { Gamepad2, Circle, X } from 'lucide-react';
+import { Gamepad2, Circle, X, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { GameData } from '@/lib/storage';
 
@@ -135,14 +135,30 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
               <Circle className="w-4 h-4" />
               Shuttlecocks used
             </label>
-            <input
-              type="number"
-              min={1}
-              value={shuttlecocks}
-              onChange={(e) => setShuttlecocks(Math.max(1, parseInt(e.target.value, 10) || 1))}
-              className="w-14 px-2 py-2 text-center bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="1"
-            />
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setShuttlecocks((n) => Math.max(1, n - 1))}
+                className="flex items-center justify-center w-9 h-9 rounded-lg bg-badminton-dark border border-gray-600 text-white hover:border-badminton-green hover:bg-badminton-dark/80 transition-colors"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <input
+                type="number"
+                min={1}
+                value={shuttlecocks}
+                onChange={(e) => setShuttlecocks(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                className="w-14 px-2 py-2 text-center bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="1"
+              />
+              <button
+                type="button"
+                onClick={() => setShuttlecocks((n) => n + 1)}
+                className="flex items-center justify-center w-9 h-9 rounded-lg bg-badminton-dark border border-gray-600 text-white hover:border-badminton-green hover:bg-badminton-dark/80 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <label className="flex items-center gap-2 cursor-pointer pb-2 shrink-0">
             <input
