@@ -128,21 +128,23 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
           </div>
         )}
 
-        {/* Shuttlecocks */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-            <Circle className="w-4 h-4" />
-            Shuttlecocks used
-          </label>
-          <input
-            type="number"
-            min={1}
-            value={shuttlecocks}
-            onChange={(e) => setShuttlecocks(Math.max(1, parseInt(e.target.value, 10) || 1))}
-            className="w-full px-4 py-2 bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green"
-            placeholder="Number of shuttlecocks"
-          />
-          <label className="mt-3 flex items-center gap-2 cursor-pointer">
+        {/* Shuttlecocks + Re-used (one row) */}
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="shrink-0">
+            <label className="block text-sm font-medium text-gray-300 mb-1.5 flex items-center gap-2">
+              <Circle className="w-4 h-4" />
+              Shuttlecocks used
+            </label>
+            <input
+              type="number"
+              min={1}
+              value={shuttlecocks}
+              onChange={(e) => setShuttlecocks(Math.max(1, parseInt(e.target.value, 10) || 1))}
+              className="w-14 px-2 py-2 text-center bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="1"
+            />
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer pb-2 shrink-0">
             <input
               type="checkbox"
               checked={reusedShuttlecocks}
@@ -150,7 +152,7 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
               className="w-4 h-4 rounded border-gray-600 bg-badminton-dark text-badminton-green focus:ring-badminton-green"
             />
             <span className="text-sm text-gray-300">Re-used Shuttlecocks</span>
-            <span className="text-xs text-gray-500">(cost will be half)</span>
+            <span className="text-xs text-gray-500">(½ cost)</span>
           </label>
         </div>
 
