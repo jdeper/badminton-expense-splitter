@@ -92,7 +92,7 @@ export default function SummaryTable({
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-300">Shuttlecock Cost:</span>
             <span className="text-white font-semibold">
-              ${(calculations.totalShuttlecocks * shuttlecockPrice).toFixed(2)}
+              ${((calculations.totalShuttlecocks || 0) * shuttlecockPrice).toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between items-center text-sm">
