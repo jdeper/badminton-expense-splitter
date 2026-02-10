@@ -15,19 +15,19 @@ export default function Home() {
     courtSetup: defaultCourtSetup,
     players: [],
     games: [],
+    paidPlayers: [],
   });
 
   const courtFee = getCourtFeeFromSetup(data.courtSetup);
 
   useEffect(() => {
-    const stored = getStoredData();
-    setData(stored);
+    getStoredData().then(setData);
   }, []);
 
   const updateData = (updates: Partial<AppData>) => {
     const newData = { ...data, ...updates };
     setData(newData);
-    saveData(newData);
+    saveData(newData).catch((err) => console.warn('saveData failed:', err));
   };
 
   const handleShuttlecockPriceChange = (price: number) => {
@@ -63,10 +63,18 @@ export default function Home() {
     updateData({ games: newGames });
   };
 
+  const handlePaidChange = (player: string, paid: boolean) => {
+    const next = paid
+      ? [...data.paidPlayers, player]
+      : data.paidPlayers.filter((p) => p !== player);
+    updateData({ paidPlayers: next });
+  };
+
   const handleReset = () => {
     updateData({
       games: [],
       players: [],
+      paidPlayers: [],
       shuttlecockPrice: 0,
       courtSetup: defaultCourtSetup,
     });
@@ -77,9 +85,9 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-badminton-green mb-2">
-            🏸 Badminton Expense Splitter
+            🏸 โปรแกรมคำนวณค่าใช้จ่าย
           </h1>
-          <p className="text-gray-400">Split your badminton expenses fairly</p>
+          <p className="text-gray-400">ชมรมแบดฯ วันเสาร์ T-Smash</p>
         </div>
 
         <div className="mb-6">
@@ -101,7 +109,9 @@ export default function Home() {
           courtFee={courtFee}
           players={data.players}
           games={data.games}
+          paidPlayers={data.paidPlayers}
           onRemoveGame={handleRemoveGame}
+          onPaidChange={handlePaidChange}
         />
 
         <div className="mb-6">

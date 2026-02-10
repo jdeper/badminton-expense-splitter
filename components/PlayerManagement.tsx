@@ -25,9 +25,12 @@ export default function PlayerManagement({
 
   return (
     <div className="bg-badminton-light rounded-lg p-6 shadow-lg border border-badminton-green/20">
-      <h2 className="text-2xl font-bold text-badminton-green mb-6 flex items-center gap-2">
+      <h2 className="text-2xl font-bold text-badminton-green mb-6 flex items-center gap-2 flex-wrap">
         <Users className="w-6 h-6" />
         ผู้เล่นที่มาวันนี้
+        <span className="text-gray-400 font-normal text-lg">
+          (จำนวน {players.length} คน)
+        </span>
       </h2>
 
       <div className="mb-4 flex gap-2">

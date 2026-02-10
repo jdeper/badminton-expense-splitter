@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Badminton Expense Splitter",
+  title: "โปรแกรมคำนวณค่าใช้จ่าย",
   description: "Split badminton expenses among players",
 };
 

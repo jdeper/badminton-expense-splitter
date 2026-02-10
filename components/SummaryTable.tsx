@@ -9,7 +9,9 @@ interface SummaryTableProps {
   courtFee: number;
   players: string[];
   games: GameData[];
+  paidPlayers: string[];
   onRemoveGame: (index: number) => void;
+  onPaidChange: (player: string, paid: boolean) => void;
 }
 
 export default function SummaryTable({
@@ -17,7 +19,9 @@ export default function SummaryTable({
   courtFee,
   players,
   games,
+  paidPlayers,
   onRemoveGame,
+  onPaidChange,
 }: SummaryTableProps) {
   const calculatePlayerCosts = () => {
     if (players.length === 0 || games.length === 0) {
@@ -116,27 +120,6 @@ export default function SummaryTable({
         </div>
       </div>
 
-      {games.length > 0 && (
-        <div className="mb-6 space-y-2">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-300">ค่าลูก</span>
-            <span className="text-white font-semibold">
-              ฿{shuttlecockPrice.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-300">ค่าคอร์ท</span>
-            <span className="text-white font-semibold">฿{courtFee.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between items-center pt-2 border-t border-gray-600">
-            <span className="text-gray-300 font-medium">รวมค่าใช้จ่าย</span>
-            <span className="text-badminton-green font-bold text-lg">
-              ฿{calculations.totalCost?.toFixed(2) || '0.00'}
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -144,6 +127,7 @@ export default function SummaryTable({
               <th className="text-left py-3 px-4 text-gray-300 font-medium">Player</th>
               <th className="text-right py-3 px-4 text-gray-300 font-medium">Cost</th>
               <th className="text-right py-3 px-4 text-gray-300 font-medium">Games</th>
+              <th className="text-center py-3 px-4 text-gray-300 font-medium w-20">Paid</th>
             </tr>
           </thead>
           <tbody>
@@ -170,20 +154,68 @@ export default function SummaryTable({
                 const cost = calculations.playerCosts?.[player] || 0;
 
                 return (
-                  <tr key={player} className="border-b border-gray-700 hover:bg-badminton-dark/50">
+                  <tr
+                    key={player}
+                    className="border-b border-gray-700 even:bg-badminton-dark/40 odd:bg-badminton-dark/20 hover:bg-badminton-dark/60"
+                  >
                     <td className="py-3 px-4 text-white">{player}</td>
                     <td className="py-3 px-4 text-right text-badminton-green font-semibold">
-                      ฿{cost.toFixed(2)}
+                      ฿{Math.ceil(cost)}
                     </td>
                     <td className="py-3 px-4 text-right text-gray-300">
                       {playerGames.length}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={paidPlayers.includes(player)}
+                        onChange={(e) => onPaidChange(player, e.target.checked)}
+                        className="w-5 h-5 rounded border-gray-500 bg-badminton-dark text-badminton-green focus:ring-badminton-green focus:ring-offset-0"
+                      />
                     </td>
                   </tr>
                 );
               })}
           </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-gray-600 bg-badminton-dark/60">
+              <td className="py-3 px-4 text-gray-300 font-medium">สรุป ยอดรวม</td>
+              <td className="py-3 px-4 text-right text-badminton-green font-bold">
+                ฿
+                {[...players].reduce((sum, player) => {
+                  const cost = calculations.playerCosts?.[player] ?? 0;
+                  return sum + Math.ceil(cost);
+                }, 0)}
+              </td>
+              <td className="py-3 px-4 text-right text-gray-400">-</td>
+              <td className="py-3 px-4 text-center text-gray-300 font-medium">
+                {paidPlayers.length}
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
+
+      {games.length > 0 && (
+        <div className="mt-6 space-y-2">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-300">ค่าลูก</span>
+            <span className="text-white font-semibold">
+              ฿{shuttlecockPrice.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-300">ค่าคอร์ท</span>
+            <span className="text-white font-semibold">฿{courtFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center pt-2 border-t border-gray-600">
+            <span className="text-gray-300 font-medium">รวมค่าใช้จ่าย</span>
+            <span className="text-badminton-green font-bold text-lg">
+              ฿{calculations.totalCost?.toFixed(2) || '0.00'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {games.length > 0 && (
         <div className="mt-6">

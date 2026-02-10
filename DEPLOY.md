@@ -1,31 +1,44 @@
 # Deployment Instructions
 
-## Quick Deploy to Vercel (Recommended)
+## Public production (Vercel)
 
-### Option 1: GitHub Integration (Easiest)
-1. Go to https://vercel.com
-2. Sign in with your GitHub account
-3. Click "Add New..." → "Project"
-4. Import `jdeper/badminton-expense-splitter`
-5. Click "Deploy"
-6. Your app will be live in ~2 minutes!
+### 1. Deploy to Vercel
 
-### Option 2: Vercel CLI
+**Option A: GitHub**
+1. Push your repo to GitHub (e.g. `jdeper/badminton-expense-splitter`).
+2. Go to [vercel.com](https://vercel.com) → **Add New…** → **Project** → Import the repo.
+3. Click **Deploy**. Your app will be public at `https://<project>.vercel.app`.
+
+**Option B: CLI**
 ```bash
-# Login to Vercel
+npm i -g vercel
 vercel login
-
-# Deploy to production
 vercel --prod
 ```
 
-## Your App Will Be Available At:
-- Production URL: `https://badminton-expense-splitter.vercel.app` (or similar)
-- The URL will be shown after deployment
+### 2. Supabase in production (optional)
 
-## Features:
-✅ Fully responsive design
-✅ Client-side data storage (localStorage)
-✅ Real-time expense calculations
-✅ Game history tracking
-✅ Fair cost splitting algorithm
+To use Supabase on the live site (so data syncs in the cloud):
+
+1. In [Vercel](https://vercel.com) → your project → **Settings** → **Environment Variables**.
+2. Add:
+   - `NEXT_PUBLIC_SUPABASE_URL` = your Supabase project URL  
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your Supabase anon key  
+3. Redeploy (e.g. **Deployments** → ⋮ → **Redeploy**).
+
+If you don’t set these, the production app uses **localStorage** (per device/browser).
+
+### 3. Build check (local)
+
+```bash
+npm run build
+npm run start
+```
+
+## Summary
+
+| Item | Notes |
+|------|--------|
+| Production URL | `https://<project>.vercel.app` after deploy |
+| Data | Supabase if env vars set; else localStorage |
+| Public | Yes — anyone with the link can open the app |
