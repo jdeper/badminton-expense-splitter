@@ -27,13 +27,8 @@ export default function SummaryTable({
     const numGames = games.length;
     const totalSlots = 4 * numGames;
 
-    // Total session cost: shuttlecock cost (from all games) + court fee
-    let totalShuttlecockCost = 0;
-    games.forEach((game) => {
-      const priceMultiplier = game.reusedShuttlecocks ? 0.5 : 1;
-      totalShuttlecockCost += game.shuttlecocks * shuttlecockPrice * priceMultiplier;
-    });
-    const totalCost = totalShuttlecockCost + courtFee;
+    // รวมค่าใช้จ่าย = ค่าลูก + ค่าคอร์ท (from Setup)
+    const totalCost = shuttlecockPrice + courtFee;
     const costPerSlot = totalSlots > 0 ? totalCost / totalSlots : 0;
 
     // Cost by total games played (each game slot pays the same)
@@ -52,15 +47,8 @@ export default function SummaryTable({
       playerCosts[player] = playerGameCount[player] * costPerSlot;
     });
 
-    const totalShuttlecocks = games.reduce(
-      (sum, game) => (game.reusedShuttlecocks ? sum : sum + game.shuttlecocks),
-      0
-    );
-
     return {
       playerCosts,
-      totalShuttlecocks,
-      totalShuttlecockCost,
       totalCost,
     };
   };
@@ -131,23 +119,17 @@ export default function SummaryTable({
       {games.length > 0 && (
         <div className="mb-6 space-y-2">
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-300">Total Shuttlecocks:</span>
+            <span className="text-gray-300">ค่าลูก</span>
             <span className="text-white font-semibold">
-              {calculations.totalShuttlecocks?.toFixed(2) ?? '0.00'}
+              ฿{shuttlecockPrice.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-300">Shuttlecock Cost:</span>
-            <span className="text-white font-semibold">
-              ฿{(calculations.totalShuttlecockCost ?? 0).toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-300">Court Fee:</span>
+            <span className="text-gray-300">ค่าคอร์ท</span>
             <span className="text-white font-semibold">฿{courtFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-gray-600">
-            <span className="text-gray-300 font-medium">Total Cost:</span>
+            <span className="text-gray-300 font-medium">รวมค่าใช้จ่าย</span>
             <span className="text-badminton-green font-bold text-lg">
               ฿{calculations.totalCost?.toFixed(2) || '0.00'}
             </span>

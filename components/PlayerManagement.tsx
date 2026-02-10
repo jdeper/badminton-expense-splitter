@@ -27,7 +27,7 @@ export default function PlayerManagement({
     <div className="bg-badminton-light rounded-lg p-6 shadow-lg border border-badminton-green/20">
       <h2 className="text-2xl font-bold text-badminton-green mb-6 flex items-center gap-2">
         <Users className="w-6 h-6" />
-        Players
+        ผู้เล่นที่มาวันนี้
       </h2>
 
       <div className="mb-4 flex gap-2">

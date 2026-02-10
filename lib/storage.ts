@@ -9,9 +9,22 @@ export interface GameData {
   date: string;
 }
 
+export interface CourtSetupEntry {
+  courtNumber: string;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+}
+
+export interface CourtSetup {
+  ratePerHour: number;
+  entries: CourtSetupEntry[];
+}
+
 export interface AppData {
   shuttlecockPrice: number;
-  courtFee: number;
+  courtSetup: CourtSetup;
   players: string[];
   games: GameData[];
 }
@@ -19,10 +32,12 @@ export interface AppData {
 const STORAGE_KEY = 'badminton-expense-splitter';
 
 export const getStoredData = (): AppData => {
+  const defaultCourtSetup: CourtSetup = { ratePerHour: 0, entries: [] };
+
   if (typeof window === 'undefined') {
     return {
       shuttlecockPrice: 0,
-      courtFee: 0,
+      courtSetup: defaultCourtSetup,
       players: [],
       games: [],
     };
@@ -31,11 +46,30 @@ export const getStoredData = (): AppData => {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (!parsed.courtSetup) {
+        parsed.courtSetup = defaultCourtSetup;
+      }
+      const entries = parsed.courtSetup.entries || [];
+      parsed.courtSetup.entries = entries.map((e: CourtSetupEntry & { hours?: number }) => {
+        if (e.startHour != null && e.endHour != null) return e;
+        const hours = typeof e.hours === 'number' ? e.hours : 0;
+        const h = Math.floor(hours);
+        const m = Math.round((hours - h) * 60);
+        return {
+          courtNumber: e.courtNumber ?? '',
+          startHour: 0,
+          startMinute: 0,
+          endHour: h,
+          endMinute: m,
+        };
+      });
+      delete parsed.courtFee;
+      return parsed as AppData;
     } catch {
       return {
         shuttlecockPrice: 0,
-        courtFee: 0,
+        courtSetup: defaultCourtSetup,
         players: [],
         games: [],
       };
@@ -44,7 +78,7 @@ export const getStoredData = (): AppData => {
 
   return {
     shuttlecockPrice: 0,
-    courtFee: 0,
+    courtSetup: defaultCourtSetup,
     players: [],
     games: [],
   };
@@ -53,4 +87,16 @@ export const getStoredData = (): AppData => {
 export const saveData = (data: AppData): void => {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+};
+
+function entryHours(entry: CourtSetupEntry): number {
+  const startM = entry.startHour * 60 + (entry.startMinute ?? 0);
+  const endM = entry.endHour * 60 + (entry.endMinute ?? 0);
+  const diff = endM - startM;
+  return diff > 0 ? diff / 60 : 0;
+}
+
+export const getCourtFeeFromSetup = (courtSetup: CourtSetup): number => {
+  const totalHours = courtSetup.entries.reduce((sum, e) => sum + entryHours(e), 0);
+  return totalHours * courtSetup.ratePerHour;
 };

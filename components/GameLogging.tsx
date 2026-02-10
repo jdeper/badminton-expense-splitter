@@ -47,7 +47,7 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-badminton-green flex items-center gap-2">
           <Gamepad2 className="w-6 h-6" />
-          Game Logging Form
+          รอบที่เล่น
         </h2>
         <p className="text-sm text-gray-400 mt-1">
           Select 4 players from the list, then record. Form resets for the next game.

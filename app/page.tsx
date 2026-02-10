@@ -5,15 +5,19 @@ import SetupSection from '@/components/SetupSection';
 import PlayerManagement from '@/components/PlayerManagement';
 import GameLogging from '@/components/GameLogging';
 import SummaryTable from '@/components/SummaryTable';
-import { AppData, GameData, getStoredData, saveData } from '@/lib/storage';
+import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup } from '@/lib/storage';
+
+const defaultCourtSetup = { ratePerHour: 0, entries: [] };
 
 export default function Home() {
   const [data, setData] = useState<AppData>({
     shuttlecockPrice: 0,
-    courtFee: 0,
+    courtSetup: defaultCourtSetup,
     players: [],
     games: [],
   });
+
+  const courtFee = getCourtFeeFromSetup(data.courtSetup);
 
   useEffect(() => {
     const stored = getStoredData();
@@ -30,8 +34,8 @@ export default function Home() {
     updateData({ shuttlecockPrice: price });
   };
 
-  const handleCourtFeeChange = (fee: number) => {
-    updateData({ courtFee: fee });
+  const handleCourtSetupChange = (courtSetup: AppData['courtSetup']) => {
+    updateData({ courtSetup });
   };
 
   const handleAddPlayer = (name: string) => {
@@ -57,6 +61,15 @@ export default function Home() {
   const handleRemoveGame = (index: number) => {
     const newGames = data.games.filter((_, i) => i !== index);
     updateData({ games: newGames });
+  };
+
+  const handleReset = () => {
+    updateData({
+      games: [],
+      players: [],
+      shuttlecockPrice: 0,
+      courtSetup: defaultCourtSetup,
+    });
   };
 
   return (
@@ -85,7 +98,7 @@ export default function Home() {
 
         <SummaryTable
           shuttlecockPrice={data.shuttlecockPrice}
-          courtFee={data.courtFee}
+          courtFee={courtFee}
           players={data.players}
           games={data.games}
           onRemoveGame={handleRemoveGame}
@@ -94,9 +107,10 @@ export default function Home() {
         <div className="mb-6">
           <SetupSection
             shuttlecockPrice={data.shuttlecockPrice}
-            courtFee={data.courtFee}
+            courtSetup={data.courtSetup}
             onShuttlecockPriceChange={handleShuttlecockPriceChange}
-            onCourtFeeChange={handleCourtFeeChange}
+            onCourtSetupChange={handleCourtSetupChange}
+            onReset={handleReset}
           />
         </div>
       </div>
