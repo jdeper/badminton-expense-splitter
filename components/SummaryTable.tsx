@@ -179,7 +179,9 @@ export default function SummaryTable({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-gray-600 bg-badminton-dark/60">
-              <td className="py-3 px-4 text-gray-300 font-medium">สรุป ยอดรวม</td>
+              <td className="py-3 px-4 text-gray-300 font-medium">
+                ผู้เล่น ทั้งหมด {players.length}
+              </td>
               <td className="py-3 px-4 text-right text-badminton-green font-bold">
                 ฿
                 {[...players].reduce((sum, player) => {
@@ -224,8 +226,9 @@ export default function SummaryTable({
             onClick={() => setGameHistoryExpanded((e) => !e)}
             className="flex items-center gap-2 w-full text-left mb-3"
           >
-            <h3 className="text-lg font-semibold text-gray-300">Game History</h3>
-            <span className="text-gray-500 text-sm">({games.length})</span>
+            <h3 className="text-lg font-semibold text-gray-300">
+              Game History ({games.length})
+            </h3>
             {gameHistoryExpanded ? (
               <ChevronUp className="w-5 h-5 text-gray-400 ml-auto" />
             ) : (
@@ -234,22 +237,35 @@ export default function SummaryTable({
           </button>
           {gameHistoryExpanded && (
           <div className="space-y-2">
-            {games.map((game, index) => (
-              <div
-                key={index}
-                className="bg-badminton-dark p-3 rounded-lg flex justify-between items-center"
-              >
-                <span className="text-sm font-medium text-white">
-                  {[game.player1, game.player2, game.player3, game.player4].join(', ')}
-                </span>
-                <button
-                  onClick={() => onRemoveGame(index)}
-                  className="text-red-400 hover:text-red-300 transition-colors"
+            {games.map((game, index) => {
+              const playersInGame = [game.player1, game.player2, game.player3, game.player4];
+              const gamesSoFar = games.slice(0, index + 1);
+              const countPlayed = (name: string) =>
+                gamesSoFar.filter(
+                  (g) =>
+                    g.player1 === name ||
+                    g.player2 === name ||
+                    g.player3 === name ||
+                    g.player4 === name
+                ).length;
+              const label = playersInGame
+                .map((p) => `${p} ( ${countPlayed(p)} )`)
+                .join(' , ');
+              return (
+                <div
+                  key={index}
+                  className="bg-badminton-dark p-3 rounded-lg flex justify-between items-center"
                 >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+                  <span className="text-sm font-medium text-white">{label}</span>
+                  <button
+                    onClick={() => onRemoveGame(index)}
+                    className="text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
           )}
         </div>
