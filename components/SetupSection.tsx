@@ -1,6 +1,6 @@
 'use client';
 
-import { DollarSign, MapPin } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { AppData } from '@/lib/storage';
 
 interface SetupSectionProps {
@@ -19,17 +19,17 @@ export default function SetupSection({
   return (
     <div className="bg-badminton-light rounded-lg p-6 shadow-lg border border-badminton-green/20">
       <h2 className="text-2xl font-bold text-badminton-green mb-6 flex items-center gap-2">
-        <DollarSign className="w-6 h-6" />
+        <Settings className="w-6 h-6" />
         Setup
       </h2>
       
-      <div className="space-y-4">
-        <div>
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            Shuttlecock Price per Unit
+            Total Shuttlecock Price
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">฿</span>
             <input
               type="number"
               step="0.01"
@@ -41,13 +41,12 @@ export default function SetupSection({
             />
           </div>
         </div>
-
-        <div>
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Total Court Fee
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">฿</span>
             <input
               type="number"
               step="0.01"

@@ -69,13 +69,7 @@ export default function Home() {
           <p className="text-gray-400">Split your badminton expenses fairly</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <SetupSection
-            shuttlecockPrice={data.shuttlecockPrice}
-            courtFee={data.courtFee}
-            onShuttlecockPriceChange={handleShuttlecockPriceChange}
-            onCourtFeeChange={handleCourtFeeChange}
-          />
+        <div className="mb-6">
           <PlayerManagement
             players={data.players}
             onAddPlayer={handleAddPlayer}
@@ -96,6 +90,15 @@ export default function Home() {
           games={data.games}
           onRemoveGame={handleRemoveGame}
         />
+
+        <div className="mb-6">
+          <SetupSection
+            shuttlecockPrice={data.shuttlecockPrice}
+            courtFee={data.courtFee}
+            onShuttlecockPriceChange={handleShuttlecockPriceChange}
+            onCourtFeeChange={handleCourtFeeChange}
+          />
+        </div>
       </div>
     </main>
   );

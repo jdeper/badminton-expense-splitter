@@ -1,6 +1,6 @@
 'use client';
 
-import { Gamepad2, Circle, X, Minus, Plus } from 'lucide-react';
+import { Gamepad2, X } from 'lucide-react';
 import { useState } from 'react';
 import { GameData } from '@/lib/storage';
 
@@ -11,8 +11,6 @@ interface GameLoggingProps {
 
 export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [shuttlecocks, setShuttlecocks] = useState<number>(1);
-  const [reusedShuttlecocks, setReusedShuttlecocks] = useState<boolean>(false);
 
   const handlePlayerClick = (playerName: string) => {
     if (selectedPlayers.includes(playerName)) {
@@ -32,23 +30,16 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
       alert('Please select exactly 4 players');
       return;
     }
-    if (shuttlecocks <= 0) {
-      alert('Please enter a valid number of shuttlecocks');
-      return;
-    }
     const game: GameData = {
       player1: selectedPlayers[0],
       player2: selectedPlayers[1],
       player3: selectedPlayers[2],
       player4: selectedPlayers[3],
-      shuttlecocks,
-      reusedShuttlecocks,
+      shuttlecocks: 1,
       date: new Date().toISOString(),
     };
     onAddGame(game);
     setSelectedPlayers([]);
-    setShuttlecocks(1);
-    setReusedShuttlecocks(false);
   };
 
   return (
@@ -59,7 +50,7 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
           Game Logging Form
         </h2>
         <p className="text-sm text-gray-400 mt-1">
-          Select 4 players from the list, enter shuttlecocks used, then record. Form resets for the next game.
+          Select 4 players from the list, then record. Form resets for the next game.
         </p>
       </div>
 
@@ -128,57 +119,13 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
           </div>
         )}
 
-        {/* Shuttlecocks + Re-used (one row) */}
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="shrink-0">
-            <label className="block text-sm font-medium text-gray-300 mb-1.5 flex items-center gap-2">
-              <Circle className="w-4 h-4" />
-              Shuttlecocks used
-            </label>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setShuttlecocks((n) => Math.max(1, n - 1))}
-                className="flex items-center justify-center w-9 h-9 rounded-lg bg-badminton-dark border border-gray-600 text-white hover:border-badminton-green hover:bg-badminton-dark/80 transition-colors"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <input
-                type="number"
-                min={1}
-                value={shuttlecocks}
-                onChange={(e) => setShuttlecocks(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                className="w-14 px-2 py-2 text-center bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="1"
-              />
-              <button
-                type="button"
-                onClick={() => setShuttlecocks((n) => n + 1)}
-                className="flex items-center justify-center w-9 h-9 rounded-lg bg-badminton-dark border border-gray-600 text-white hover:border-badminton-green hover:bg-badminton-dark/80 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer pb-2 shrink-0">
-            <input
-              type="checkbox"
-              checked={reusedShuttlecocks}
-              onChange={(e) => setReusedShuttlecocks(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-600 bg-badminton-dark text-badminton-green focus:ring-badminton-green"
-            />
-            <span className="text-sm text-gray-300">Re-used Shuttlecocks</span>
-            <span className="text-xs text-gray-500">(½ cost)</span>
-          </label>
-        </div>
-
         <button
           type="submit"
-          disabled={selectedPlayers.length !== 4 || shuttlecocks <= 0}
+          disabled={selectedPlayers.length !== 4}
           className={`
             w-full py-3 rounded-lg font-semibold transition-colors
             ${
-              selectedPlayers.length === 4 && shuttlecocks > 0
+              selectedPlayers.length === 4
                 ? 'bg-badminton-green text-white hover:bg-green-600'
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
             }

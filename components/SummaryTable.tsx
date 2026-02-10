@@ -24,51 +24,38 @@ export default function SummaryTable({
       return {};
     }
 
-    const playerShuttlecocks: Record<string, number> = {};
-    const playerShuttlecockCosts: Record<string, number> = {};
-    const playerCourtFee: Record<string, number> = {};
-    players.forEach((player) => {
-      playerShuttlecocks[player] = 0;
-      playerShuttlecockCosts[player] = 0;
-      playerCourtFee[player] = 0;
-    });
-
     const numGames = games.length;
-    const courtFeePerPlayerPerGame = numGames > 0 ? courtFee / (4 * numGames) : 0;
+    const totalSlots = 4 * numGames;
 
+    // Total session cost: shuttlecock cost (from all games) + court fee
+    let totalShuttlecockCost = 0;
     games.forEach((game) => {
-      const playersInGame = [game.player1, game.player2, game.player3, game.player4];
-      const shuttlecocksPerPlayer = game.shuttlecocks / 4;
       const priceMultiplier = game.reusedShuttlecocks ? 0.5 : 1;
-      const costPerPlayerThisGame = shuttlecocksPerPlayer * shuttlecockPrice * priceMultiplier;
-      const countTowardTotal = !game.reusedShuttlecocks;
-      playersInGame.forEach((player) => {
-        if (playerShuttlecocks[player] !== undefined) {
-          if (countTowardTotal) playerShuttlecocks[player] += shuttlecocksPerPlayer;
-          playerShuttlecockCosts[player] += costPerPlayerThisGame;
-          playerCourtFee[player] += courtFeePerPlayerPerGame;
-        }
+      totalShuttlecockCost += game.shuttlecocks * shuttlecockPrice * priceMultiplier;
+    });
+    const totalCost = totalShuttlecockCost + courtFee;
+    const costPerSlot = totalSlots > 0 ? totalCost / totalSlots : 0;
+
+    // Cost by total games played (each game slot pays the same)
+    const playerGameCount: Record<string, number> = {};
+    players.forEach((player) => {
+      playerGameCount[player] = 0;
+    });
+    games.forEach((game) => {
+      [game.player1, game.player2, game.player3, game.player4].forEach((player) => {
+        if (playerGameCount[player] !== undefined) playerGameCount[player]++;
       });
     });
 
-    const totalShuttlecocks = Object.values(playerShuttlecocks).reduce(
-      (sum, count) => sum + count,
-      0
-    );
-    const totalShuttlecockCost = Object.values(playerShuttlecockCosts).reduce(
-      (sum, cost) => sum + cost,
-      0
-    );
-    const totalCourtFeeCharged = Object.values(playerCourtFee).reduce(
-      (sum, cost) => sum + cost,
-      0
-    );
-    const totalCost = totalShuttlecockCost + totalCourtFeeCharged;
-
     const playerCosts: Record<string, number> = {};
     players.forEach((player) => {
-      playerCosts[player] = playerShuttlecockCosts[player] + playerCourtFee[player];
+      playerCosts[player] = playerGameCount[player] * costPerSlot;
     });
+
+    const totalShuttlecocks = games.reduce(
+      (sum, game) => (game.reusedShuttlecocks ? sum : sum + game.shuttlecocks),
+      0
+    );
 
     return {
       playerCosts,
@@ -152,17 +139,17 @@ export default function SummaryTable({
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-300">Shuttlecock Cost:</span>
             <span className="text-white font-semibold">
-              ${(calculations.totalShuttlecockCost ?? 0).toFixed(2)}
+              ฿{(calculations.totalShuttlecockCost ?? 0).toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-300">Court Fee:</span>
-            <span className="text-white font-semibold">${courtFee.toFixed(2)}</span>
+            <span className="text-white font-semibold">฿{courtFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-gray-600">
             <span className="text-gray-300 font-medium">Total Cost:</span>
             <span className="text-badminton-green font-bold text-lg">
-              ${calculations.totalCost?.toFixed(2) || '0.00'}
+              ฿{calculations.totalCost?.toFixed(2) || '0.00'}
             </span>
           </div>
         </div>
@@ -204,7 +191,7 @@ export default function SummaryTable({
                   <tr key={player} className="border-b border-gray-700 hover:bg-badminton-dark/50">
                     <td className="py-3 px-4 text-white">{player}</td>
                     <td className="py-3 px-4 text-right text-badminton-green font-semibold">
-                      ${cost.toFixed(2)}
+                      ฿{cost.toFixed(2)}
                     </td>
                     <td className="py-3 px-4 text-right text-gray-300">
                       {playerGames.length}
@@ -238,25 +225,9 @@ export default function SummaryTable({
                 key={index}
                 className="bg-badminton-dark p-3 rounded-lg flex justify-between items-center"
               >
-                <div className="text-sm text-gray-300 space-y-1">
-                  <div>
-                    <span className="font-medium text-white">
-                      {[game.player1, game.player2, game.player3, game.player4].join(', ')}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-                    <span>
-                      <span className="text-gray-500">Shuttlecocks:</span>{' '}
-                      <span className="text-badminton-green font-medium">{game.shuttlecocks}</span>
-                    </span>
-                    <span>
-                      <span className="text-gray-500">Re-used:</span>{' '}
-                      <span className={game.reusedShuttlecocks ? 'text-amber-400' : 'text-gray-400'}>
-                        {game.reusedShuttlecocks ? 'Yes (½ cost)' : 'No'}
-                      </span>
-                    </span>
-                  </div>
-                </div>
+                <span className="text-sm font-medium text-white">
+                  {[game.player1, game.player2, game.player3, game.player4].join(', ')}
+                </span>
                 <button
                   onClick={() => onRemoveGame(index)}
                   className="text-red-400 hover:text-red-300 transition-colors"
