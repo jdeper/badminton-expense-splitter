@@ -7,9 +7,14 @@ import GameLogging from '@/components/GameLogging';
 import SummaryTable from '@/components/SummaryTable';
 import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup } from '@/lib/storage';
 
-const defaultCourtSetup = { ratePerHour: 0, entries: [] };
+const defaultCourtSetup = { ratePerHour: 170, entries: [] };
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function Home() {
+  const [selectedDate, setSelectedDate] = useState(today);
   const [data, setData] = useState<AppData>({
     shuttlecockPrice: 0,
     courtSetup: defaultCourtSetup,
@@ -17,17 +22,22 @@ export default function Home() {
     games: [],
     paidPlayers: [],
   });
+  const [loading, setLoading] = useState(true);
 
   const courtFee = getCourtFeeFromSetup(data.courtSetup);
 
   useEffect(() => {
-    getStoredData().then(setData);
-  }, []);
+    setLoading(true);
+    getStoredData(selectedDate).then((loaded) => {
+      setData(loaded);
+      setLoading(false);
+    });
+  }, [selectedDate]);
 
   const updateData = (updates: Partial<AppData>) => {
     const newData = { ...data, ...updates };
     setData(newData);
-    saveData(newData).catch((err) => console.warn('saveData failed:', err));
+    saveData(newData, selectedDate).catch((err) => console.warn('saveData failed:', err));
   };
 
   const handleShuttlecockPriceChange = (price: number) => {
@@ -92,9 +102,12 @@ export default function Home() {
 
         <div className="mb-6">
           <PlayerManagement
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
             players={data.players}
             onAddPlayer={handleAddPlayer}
             onRemovePlayer={handleRemovePlayer}
+            loading={loading}
           />
         </div>
 

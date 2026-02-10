@@ -24,9 +24,9 @@ To use Supabase on the live site (so data syncs in the cloud):
 2. Add:
    - `NEXT_PUBLIC_SUPABASE_URL` = your Supabase project URL  
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your Supabase anon key  
-3. Redeploy (e.g. **Deployments** → ⋮ → **Redeploy**).
+3. **ต้อง Redeploy** หลังเพิ่ม/แก้ env (Next.js ฝังค่า `NEXT_PUBLIC_*` ตอน build): **Deployments** → ⋮ → **Redeploy**. เลือก Environment = **Production** ตอนเพิ่ม env.
 
-If you don’t set these, the production app uses **localStorage** (per device/browser).
+If you don’t set these, the production app uses **localStorage** (per device/browser). **ถ้า Supabase ยังไม่ทำงานบน Vercel:** ตรวจว่า (1) ใส่ทั้งสอง env ใน Vercel แล้ว (2) Environment = Production (3) กด Redeploy หลังเพิ่ม env.
 
 ### 3. Build check (local)
 

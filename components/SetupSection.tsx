@@ -102,67 +102,75 @@ export default function SetupSection({
 
         <div className="space-y-3 mb-3">
           {courtSetup.entries.map((entry, index) => (
-            <div key={index} className="flex flex-wrap items-center gap-2 p-3 rounded-lg bg-badminton-dark/50">
-              <label className="text-gray-400 text-xs">สนาม</label>
-              <select
-                value={courtOptions.includes(Number(entry.courtNumber)) ? entry.courtNumber : '1'}
-                onChange={(e) => updateEntry(index, { courtNumber: e.target.value })}
-                className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
-              >
-                {courtOptions.map((n) => (
-                  <option key={n} value={String(n)}>{n}</option>
-                ))}
-              </select>
-              <span className="text-gray-500 text-xs">เริ่ม</span>
-              <select
-                value={Math.min(hourMax, Math.max(hourMin, entry.startHour ?? 9))}
-                onChange={(e) => updateEntry(index, { startHour: parseInt(e.target.value, 10) })}
-                className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
-              >
-                {Array.from({ length: hourMax - hourMin + 1 }, (_, i) => hourMin + i).map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
-              <span className="text-gray-500 text-sm">ชม.</span>
-              <select
-                value={minuteOptions.includes(entry.startMinute ?? 0) ? (entry.startMinute ?? 0) : 0}
-                onChange={(e) => updateEntry(index, { startMinute: parseInt(e.target.value, 10) })}
-                className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
-              >
-                {minuteOptions.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              <span className="text-gray-500 text-sm">น.</span>
-              <span className="text-gray-500 text-xs">–</span>
-              <span className="text-gray-500 text-xs">สิ้นสุด</span>
-              <select
-                value={Math.min(hourMax, Math.max(hourMin, entry.endHour ?? 10))}
-                onChange={(e) => updateEntry(index, { endHour: parseInt(e.target.value, 10) })}
-                className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
-              >
-                {Array.from({ length: hourMax - hourMin + 1 }, (_, i) => hourMin + i).map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
-              <span className="text-gray-500 text-sm">ชม.</span>
-              <select
-                value={minuteOptions.includes(entry.endMinute ?? 0) ? (entry.endMinute ?? 0) : 0}
-                onChange={(e) => updateEntry(index, { endMinute: parseInt(e.target.value, 10) })}
-                className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
-              >
-                {minuteOptions.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              <span className="text-gray-500 text-sm">น.</span>
-              <button
-                type="button"
-                onClick={() => removeEntry(index)}
-                className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+            <div
+              key={index}
+              className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-2 p-3 rounded-lg bg-badminton-dark/50"
+            >
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => removeEntry(index)}
+                  className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <label className="text-gray-400 text-xs w-10 shrink-0">สนาม</label>
+                <select
+                  value={courtOptions.includes(Number(entry.courtNumber)) ? entry.courtNumber : '1'}
+                  onChange={(e) => updateEntry(index, { courtNumber: e.target.value })}
+                  className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
+                >
+                  {courtOptions.map((n) => (
+                    <option key={n} value={String(n)}>{n}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-xs w-10 shrink-0">เริ่ม</span>
+                <select
+                  value={Math.min(hourMax, Math.max(hourMin, entry.startHour ?? 9))}
+                  onChange={(e) => updateEntry(index, { startHour: parseInt(e.target.value, 10) })}
+                  className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
+                >
+                  {Array.from({ length: hourMax - hourMin + 1 }, (_, i) => hourMin + i).map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 text-sm">:</span>
+                <select
+                  value={minuteOptions.includes(entry.startMinute ?? 0) ? (entry.startMinute ?? 0) : 0}
+                  onChange={(e) => updateEntry(index, { startMinute: parseInt(e.target.value, 10) })}
+                  className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
+                >
+                  {minuteOptions.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 text-sm">น.</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-xs w-10 shrink-0">สิ้นสุด</span>
+                <select
+                  value={Math.min(hourMax, Math.max(hourMin, entry.endHour ?? 10))}
+                  onChange={(e) => updateEntry(index, { endHour: parseInt(e.target.value, 10) })}
+                  className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
+                >
+                  {Array.from({ length: hourMax - hourMin + 1 }, (_, i) => hourMin + i).map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 text-sm">:</span>
+                <select
+                  value={minuteOptions.includes(entry.endMinute ?? 0) ? (entry.endMinute ?? 0) : 0}
+                  onChange={(e) => updateEntry(index, { endMinute: parseInt(e.target.value, 10) })}
+                  className="w-14 px-2 py-1.5 bg-badminton-dark border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-badminton-green"
+                >
+                  {minuteOptions.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 text-sm">น.</span>
+              </div>
             </div>
           ))}
         </div>

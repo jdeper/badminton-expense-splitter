@@ -34,9 +34,8 @@ export interface AppData {
 }
 
 const STORAGE_KEY = 'badminton-expense-splitter';
-const APP_DATA_ROW_ID = 'default';
 
-const defaultCourtSetup: CourtSetup = { ratePerHour: 0, entries: [] };
+const defaultCourtSetup: CourtSetup = { ratePerHour: 170, entries: [] };
 
 function normalizeParsed(parsed: Record<string, unknown>): AppData {
   if (!parsed.courtSetup) {
@@ -72,9 +71,13 @@ function defaultAppData(): AppData {
   };
 }
 
-function readFromLocalStorage(): AppData {
+function storageKeyForDate(date: string): string {
+  return `${STORAGE_KEY}-${date}`;
+}
+
+function readFromLocalStorage(date: string): AppData {
   if (typeof window === 'undefined') return defaultAppData();
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = localStorage.getItem(storageKeyForDate(date));
   if (!stored) return defaultAppData();
   try {
     const parsed = JSON.parse(stored) as Record<string, unknown>;
@@ -84,13 +87,13 @@ function readFromLocalStorage(): AppData {
   }
 }
 
-function writeToLocalStorage(data: AppData): void {
+function writeToLocalStorage(data: AppData, date: string): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(storageKeyForDate(date), JSON.stringify(data));
 }
 
-/** Load app data. Uses Supabase if configured, otherwise localStorage. */
-export async function getStoredData(): Promise<AppData> {
+/** Load app data for a given date (YYYY-MM-DD). Uses Supabase if configured, otherwise localStorage. */
+export async function getStoredData(date: string): Promise<AppData> {
   if (typeof window === 'undefined') {
     return defaultAppData();
   }
@@ -101,12 +104,12 @@ export async function getStoredData(): Promise<AppData> {
       const { data, error } = await supabase
         .from('app_data')
         .select('data')
-        .eq('id', APP_DATA_ROW_ID)
+        .eq('id', date)
         .maybeSingle();
 
       if (error) {
         console.warn('Supabase getStoredData error:', error);
-        return readFromLocalStorage();
+        return readFromLocalStorage(date);
       }
       if (data?.data) {
         return normalizeParsed(data.data as Record<string, unknown>);
@@ -114,11 +117,11 @@ export async function getStoredData(): Promise<AppData> {
     }
   }
 
-  return readFromLocalStorage();
+  return readFromLocalStorage(date);
 }
 
-/** Save app data. Uses Supabase if configured, otherwise localStorage. */
-export async function saveData(data: AppData): Promise<void> {
+/** Save app data for a given date (YYYY-MM-DD). Uses Supabase if configured, otherwise localStorage. */
+export async function saveData(data: AppData, date: string): Promise<void> {
   if (typeof window === 'undefined') return;
 
   if (isSupabaseConfigured()) {
@@ -126,7 +129,7 @@ export async function saveData(data: AppData): Promise<void> {
     if (supabase) {
       const { error } = await supabase.from('app_data').upsert(
         {
-          id: APP_DATA_ROW_ID,
+          id: date,
           data: data as unknown as Record<string, unknown>,
           updated_at: new Date().toISOString(),
         },
@@ -140,7 +143,7 @@ export async function saveData(data: AppData): Promise<void> {
     }
   }
 
-  writeToLocalStorage(data);
+  writeToLocalStorage(data, date);
 }
 
 function entryHours(entry: CourtSetupEntry): number {
