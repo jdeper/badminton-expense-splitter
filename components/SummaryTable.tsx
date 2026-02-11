@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Calculator, Trash2, Camera, ChevronDown, ChevronUp } from 'lucide-react';
 import { GameData } from '@/lib/storage';
+import { getPlayerColor } from '@/lib/playerColors';
 
 interface SummaryTableProps {
   shuttlecockPrice: number;
@@ -158,7 +159,12 @@ export default function SummaryTable({
                     key={player}
                     className="border-b border-gray-700 even:bg-badminton-dark/40 odd:bg-badminton-dark/20 hover:bg-badminton-dark/60"
                   >
-                    <td className="py-3 px-4 text-white">{player}</td>
+                    <td
+                      className="py-3 px-4 text-white font-medium pl-3"
+                      style={{ borderLeft: `4px solid ${getPlayerColor(player)}` }}
+                    >
+                      {player}
+                    </td>
                     <td className="py-3 px-4 text-right text-badminton-green font-semibold">
                       ฿{Math.ceil(cost)}
                     </td>
@@ -248,15 +254,20 @@ export default function SummaryTable({
                     g.player3 === name ||
                     g.player4 === name
                 ).length;
-              const label = playersInGame
-                .map((p) => `${p} ( ${countPlayed(p)} )`)
-                .join(' , ');
               return (
                 <div
                   key={index}
                   className="bg-badminton-dark p-3 rounded-lg flex justify-between items-center"
                 >
-                  <span className="text-sm font-medium text-white">{label}</span>
+                  <span className="text-sm font-medium text-white">
+                    {playersInGame.map((p, i) => (
+                      <span key={p}>
+                        {i > 0 && ' , '}
+                        <span style={{ color: getPlayerColor(p) }}>{p}</span>
+                        {' ( '}{countPlayed(p)}{' )'}
+                      </span>
+                    ))}
+                  </span>
                   <button
                     onClick={() => onRemoveGame(index)}
                     className="text-red-400 hover:text-red-300 transition-colors"

@@ -80,9 +80,6 @@ export default function SetupSection({
       {/* Court setup */}
       <div className="border-t border-gray-600 pt-6">
         <h3 className="text-lg font-semibold text-badminton-green mb-3">Court setup</h3>
-        <p className="text-sm text-gray-400 mb-4">
-          ระบุหมายเลขสนาม และช่วงเวลาเริ่ม–สิ้นสุด (ชั่วโมง และนาที) เพิ่มได้มากกว่า 1 สนาม
-        </p>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-300 mb-2">ค่าต่อชั่วโมง (฿)</label>

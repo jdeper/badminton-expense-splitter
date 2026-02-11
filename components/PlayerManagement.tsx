@@ -2,6 +2,7 @@
 
 import { Users, Plus, X, Calendar } from 'lucide-react';
 import { useState } from 'react';
+import { getPlayerColor, getPlayerBgColor } from '@/lib/playerColors';
 
 interface PlayerManagementProps {
   selectedDate: string;
@@ -60,9 +61,9 @@ export default function PlayerManagement({
           value={newPlayerName}
               onChange={(e) => setNewPlayerName(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddPlayer()}
-              placeholder="ชื่อ (สูงสุด 10 ตัว)"
+              placeholder="ใส่ชื่อ"
               maxLength={10}
-              className="w-32 max-w-[10ch] px-4 py-2 bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green focus:border-transparent"
+              className="w-[10ch] max-w-[10ch] px-3 py-2 bg-badminton-dark border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-badminton-green focus:border-transparent"
             />
             <button
               onClick={handleAddPlayer}
@@ -76,13 +77,18 @@ export default function PlayerManagement({
           {players.length === 0 ? (
             <p className="text-gray-400 text-center py-4">No players added yet</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div className="flex flex-wrap gap-2">
               {players.map((player, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between bg-badminton-dark px-4 py-2 rounded-lg border border-gray-700"
+                  className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border border-gray-700 pl-3 max-w-[13ch] shrink-0"
+                  style={{
+                    borderLeftWidth: '4px',
+                    borderLeftColor: getPlayerColor(player),
+                    backgroundColor: getPlayerBgColor(player, 0.15),
+                  }}
                 >
-                  <span className="text-white">{player}</span>
+                  <span className="text-white font-medium truncate max-w-[10ch]" title={player}>{player}</span>
                   <button
                     onClick={() => onRemovePlayer(index)}
                     className="text-red-400 hover:text-red-300 transition-colors"

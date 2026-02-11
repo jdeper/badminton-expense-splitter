@@ -61,11 +61,13 @@ function normalizeParsed(parsed: Record<string, unknown>): AppData {
   return parsed as unknown as AppData;
 }
 
+export const DEFAULT_PLAYERS = ['Jed', 'Juk', 'Aoh', 'Buo', 'Moa', 'Joy', 'Heng', 'Benz'];
+
 function defaultAppData(): AppData {
   return {
     shuttlecockPrice: 0,
     courtSetup: defaultCourtSetup,
-    players: [],
+    players: [...DEFAULT_PLAYERS],
     games: [],
     paidPlayers: [],
   };

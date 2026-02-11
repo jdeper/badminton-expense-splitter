@@ -5,7 +5,7 @@ import SetupSection from '@/components/SetupSection';
 import PlayerManagement from '@/components/PlayerManagement';
 import GameLogging from '@/components/GameLogging';
 import SummaryTable from '@/components/SummaryTable';
-import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup } from '@/lib/storage';
+import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup, DEFAULT_PLAYERS } from '@/lib/storage';
 
 const defaultCourtSetup = { ratePerHour: 170, entries: [] };
 
@@ -83,7 +83,7 @@ export default function Home() {
   const handleReset = () => {
     updateData({
       games: [],
-      players: [],
+      players: [...DEFAULT_PLAYERS],
       paidPlayers: [],
       shuttlecockPrice: 0,
       courtSetup: defaultCourtSetup,

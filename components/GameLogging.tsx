@@ -3,6 +3,7 @@
 import { Gamepad2, X } from 'lucide-react';
 import { useState } from 'react';
 import { GameData } from '@/lib/storage';
+import { getPlayerColor, getPlayerBgColor } from '@/lib/playerColors';
 
 interface GameLoggingProps {
   players: string[];
@@ -49,17 +50,10 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
           <Gamepad2 className="w-6 h-6" />
           รอบที่เล่น
         </h2>
-        <p className="text-sm text-gray-400 mt-1">
-          Select 4 players from the list, then record. Form resets for the next game.
-        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Players as capsule list (input) */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-3">
-            Players — tap to select 4
-          </label>
           <div className="flex flex-wrap gap-3">
             {players.map((player) => {
               const isSelected = selectedPlayers.includes(player);
@@ -71,13 +65,17 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
                   onClick={() => handlePlayerClick(player)}
                   disabled={isDisabled}
                   className={`
-                    px-5 py-2.5 rounded-full text-sm font-medium transition-all
+                    px-5 py-2.5 rounded-full text-sm font-medium transition-all border-2
                     ${isSelected
-                      ? 'bg-badminton-green text-white shadow-md'
+                      ? 'text-white shadow-md'
                       : isDisabled
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
-                      : 'bg-badminton-dark text-gray-300 border-2 border-gray-600 hover:border-badminton-green hover:text-white'
+                      : 'bg-badminton-dark text-gray-300 hover:text-white'
                   }`}
+                  style={{
+                    borderColor: getPlayerColor(player),
+                    ...(isSelected ? { backgroundColor: getPlayerColor(player) } : {}),
+                  }}
                 >
                   {player}
                 </button>
@@ -103,7 +101,8 @@ export default function GameLogging({ players, onAddGame }: GameLoggingProps) {
               {selectedPlayers.map((player) => (
                 <div
                   key={player}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-badminton-green/90 text-white rounded-full text-sm font-medium"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-white rounded-full text-sm font-medium"
+                  style={{ backgroundColor: getPlayerColor(player) }}
                 >
                   {player}
                   <button
