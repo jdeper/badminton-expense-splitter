@@ -148,6 +148,39 @@ export async function saveData(data: AppData, date: string): Promise<void> {
   writeToLocalStorage(data, date);
 }
 
+/** Subscribe to realtime changes for a given date. Returns an unsubscribe function. */
+export function subscribeToDate(
+  date: string,
+  onUpdate: (data: AppData) => void
+): () => void {
+  if (!isSupabaseConfigured()) return () => {};
+  const supabase = getSupabase();
+  if (!supabase) return () => {};
+
+  const channel = supabase
+    .channel(`app_data:${date}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'app_data',
+        filter: `id=eq.${date}`,
+      },
+      (payload) => {
+        const row = payload.new as { data?: Record<string, unknown> } | undefined;
+        if (row?.data) {
+          onUpdate(normalizeParsed(row.data));
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
 function entryHours(entry: CourtSetupEntry): number {
   const startM = entry.startHour * 60 + (entry.startMinute ?? 0);
   const endM = entry.endHour * 60 + (entry.endMinute ?? 0);

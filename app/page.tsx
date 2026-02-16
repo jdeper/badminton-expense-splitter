@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SetupSection from '@/components/SetupSection';
 import PlayerManagement from '@/components/PlayerManagement';
 import GameLogging from '@/components/GameLogging';
 import SummaryTable from '@/components/SummaryTable';
-import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup, DEFAULT_PLAYERS } from '@/lib/storage';
+import { AppData, GameData, getStoredData, saveData, getCourtFeeFromSetup, DEFAULT_PLAYERS, subscribeToDate } from '@/lib/storage';
 
 const defaultCourtSetup = { ratePerHour: 170, entries: [] };
 
@@ -23,6 +23,7 @@ export default function Home() {
     paidPlayers: [],
   });
   const [loading, setLoading] = useState(true);
+  const skipNextRealtime = useRef(false);
 
   const courtFee = getCourtFeeFromSetup(data.courtSetup);
 
@@ -32,13 +33,30 @@ export default function Home() {
       setData(loaded);
       setLoading(false);
     });
+
+    const unsub = subscribeToDate(selectedDate, (incoming) => {
+      if (skipNextRealtime.current) {
+        skipNextRealtime.current = false;
+        return;
+      }
+      setData(incoming);
+    });
+
+    return unsub;
   }, [selectedDate]);
 
-  const updateData = (updates: Partial<AppData>) => {
-    const newData = { ...data, ...updates };
-    setData(newData);
-    saveData(newData, selectedDate).catch((err) => console.warn('saveData failed:', err));
-  };
+  const updateData = useCallback(
+    (updater: Partial<AppData> | ((prev: AppData) => Partial<AppData>)) => {
+      setData((prev) => {
+        const updates = typeof updater === 'function' ? updater(prev) : updater;
+        const newData = { ...prev, ...updates };
+        skipNextRealtime.current = true;
+        saveData(newData, selectedDate).catch((err) => console.warn('saveData failed:', err));
+        return newData;
+      });
+    },
+    [selectedDate]
+  );
 
   const handleShuttlecockPriceChange = (price: number) => {
     updateData({ shuttlecockPrice: price });
@@ -49,35 +67,37 @@ export default function Home() {
   };
 
   const handleAddPlayer = (name: string) => {
-    updateData({ players: [...data.players, name] });
+    updateData((prev) => ({ players: [...prev.players, name] }));
   };
 
   const handleRemovePlayer = (index: number) => {
-    const newPlayers = data.players.filter((_, i) => i !== index);
-    const newGames = data.games.filter(
-      (game) =>
-        newPlayers.includes(game.player1) &&
-        newPlayers.includes(game.player2) &&
-        newPlayers.includes(game.player3) &&
-        newPlayers.includes(game.player4)
-    );
-    updateData({ players: newPlayers, games: newGames });
+    updateData((prev) => {
+      const newPlayers = prev.players.filter((_, i) => i !== index);
+      const newGames = prev.games.filter(
+        (game) =>
+          newPlayers.includes(game.player1) &&
+          newPlayers.includes(game.player2) &&
+          newPlayers.includes(game.player3) &&
+          newPlayers.includes(game.player4)
+      );
+      return { players: newPlayers, games: newGames };
+    });
   };
 
   const handleAddGame = (game: GameData) => {
-    updateData({ games: [...data.games, game] });
+    updateData((prev) => ({ games: [...prev.games, game] }));
   };
 
   const handleRemoveGame = (index: number) => {
-    const newGames = data.games.filter((_, i) => i !== index);
-    updateData({ games: newGames });
+    updateData((prev) => ({ games: prev.games.filter((_, i) => i !== index) }));
   };
 
   const handlePaidChange = (player: string, paid: boolean) => {
-    const next = paid
-      ? [...data.paidPlayers, player]
-      : data.paidPlayers.filter((p) => p !== player);
-    updateData({ paidPlayers: next });
+    updateData((prev) => ({
+      paidPlayers: paid
+        ? [...prev.paidPlayers, player]
+        : prev.paidPlayers.filter((p) => p !== player),
+    }));
   };
 
   const handleReset = () => {
