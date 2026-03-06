@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, Plus, X, Calendar } from 'lucide-react';
+import { Users, Plus, X, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { getPlayerColor, getPlayerBgColor } from '@/lib/playerColors';
 
@@ -22,6 +22,7 @@ export default function PlayerManagement({
   loading = false,
 }: PlayerManagementProps) {
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [showPlayers, setShowPlayers] = useState(false);
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim() && !players.includes(newPlayerName.trim())) {
@@ -33,13 +34,32 @@ export default function PlayerManagement({
   return (
     <div className="bg-badminton-light rounded-lg p-6 shadow-lg border border-badminton-green/20">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-badminton-green flex items-center gap-2 flex-wrap">
-          <Users className="w-6 h-6" />
-          ผู้เล่นที่มาวันนี้
-          <span className="text-gray-400 font-normal text-lg">
-            (จำนวน {players.length} คน)
-          </span>
-        </h2>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-2xl font-bold text-badminton-green flex items-center gap-2 flex-wrap">
+            <Users className="w-6 h-6" />
+            ผู้เล่นที่มาวันนี้
+            <span className="text-gray-400 font-normal text-lg">
+              (จำนวน {players.length} คน)
+            </span>
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowPlayers((v) => !v)}
+            className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full border border-gray-600 text-gray-300 hover:border-badminton-green hover:text-badminton-green transition-colors"
+          >
+            {showPlayers ? (
+              <>
+                ซ่อนรายชื่อ
+                <ChevronUp className="w-3 h-3" />
+              </>
+            ) : (
+              <>
+                แสดงรายชื่อ
+                <ChevronDown className="w-3 h-3" />
+              </>
+            )}
+          </button>
+        </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-gray-400" />
           <input
@@ -76,7 +96,7 @@ export default function PlayerManagement({
 
           {players.length === 0 ? (
             <p className="text-gray-400 text-center py-4">No players added yet</p>
-          ) : (
+          ) : showPlayers ? (
             <div className="flex flex-wrap gap-2">
               {players.map((player, index) => (
                 <div
@@ -88,7 +108,12 @@ export default function PlayerManagement({
                     backgroundColor: getPlayerBgColor(player, 0.15),
                   }}
                 >
-                  <span className="text-white font-medium truncate max-w-[10ch]" title={player}>{player}</span>
+                  <span
+                    className="text-white font-medium truncate max-w-[10ch]"
+                    title={player}
+                  >
+                    {player}
+                  </span>
                   <button
                     onClick={() => onRemovePlayer(index)}
                     className="text-red-400 hover:text-red-300 transition-colors"
@@ -98,7 +123,7 @@ export default function PlayerManagement({
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </>
       )}
     </div>

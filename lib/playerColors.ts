@@ -1,4 +1,4 @@
-/** Distinct colors for players (work on dark background). Same name always gets same color. 32 colors. */
+/** Distinct colors for players (work on dark background). 32 colors. */
 const PALETTE = [
   '#22d3ee', // cyan
   '#a78bfa', // violet
@@ -34,17 +34,16 @@ const PALETTE = [
   '#22c55e', // green-5
 ];
 
-function hashName(name: string): number {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) {
-    h = (h << 5) - h + name.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
-}
+const nameToColor = new Map<string, string>();
+let nextColorIndex = 0;
 
 export function getPlayerColor(playerName: string): string {
-  return PALETTE[hashName(playerName) % PALETTE.length];
+  const existing = nameToColor.get(playerName);
+  if (existing) return existing;
+  const color = PALETTE[nextColorIndex] ?? PALETTE[nextColorIndex % PALETTE.length];
+  nameToColor.set(playerName, color);
+  nextColorIndex += 1;
+  return color;
 }
 
 /** For use as subtle background: color with alpha */
